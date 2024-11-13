@@ -1,7 +1,6 @@
 #-*-coding:utf-8 -*-
 from maya import mel
 from maya import cmds
-import pymel.core as pm
 import os
 import json
 import datetime as dt
@@ -35,7 +34,7 @@ def main(mesh=None, pop_zero_poly=False):
     engine = 'maya'
     for node, node_l in zip(selection, selection_l):
         if node in zero_mesh:
-            print 'Skip Zero Triangle Mesh :', node
+            print('Skip Zero Triangle Mesh :', node)
             continue
         #メッシュノードを含むオブジェクトのみ処理する。
         meshnode = cmds.listRelatives(node_l, s=True, pa=True, type='mesh', fullPath=True)
@@ -53,7 +52,7 @@ def main(mesh=None, pop_zero_poly=False):
         try:
             cmds.select(s, add=True)
         except Exception as e:
-            print e.message
+            print('{}'.format(e))
     if zero_mesh and pop_zero_poly:
         msg = msg01.output()+str(len(zero_mesh))
         msg += '\n'+msg02.output()
@@ -162,13 +161,11 @@ def freeze():
 def get_shading_engines(root_node=None):
     en_list = []
     if root_node is None:
-        shapes = pm.ls(type="mesh")
+        shapes = cmds.ls(type="mesh")
     else:
-        if isinstance(root_node, (str, unicode)):
-            root_node = pm.PyNode(root_node)
-        shapes = root_node.listRelatives(ad=True, type="mesh")
+        shapes = cmds.listRelatives(root_node, ad=True, type="mesh") or []
     file_nodes = []
     for i in shapes:
-        shading_engines = i.shadingGroups()
+        shading_engines = cmds.listConnections(i, type="shadingEngine") or []
         en_list+=shading_engines
     return list(set(en_list))

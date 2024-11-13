@@ -1,43 +1,46 @@
 # -*- coding: utf-8 -*-
+import sys
 from maya import OpenMayaUI, cmds
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
-#PySide2、PySide両対応
-import imp
-try:
-    imp.find_module('PySide2')
+
+from .maya_version import MAYA_VER
+
+#PySide6、PySide2、PySide全対応
+if MAYA_VER >= 2025:
+    from PySide6.QtWidgets import *
+    from PySide6.QtGui import *
+    from PySide6.QtCore import *
+    import shiboken6 as shiboken
+elif 2017 <= MAYA_VER < 2025:
     from PySide2.QtWidgets import *
     from PySide2.QtGui import *
     from PySide2.QtCore import *
-except ImportError:
+    import shiboken2 as shiboken
+else:
     from PySide.QtGui import *
     from PySide.QtCore import *
-try:
-    imp.find_module("shiboken2")
-    import shiboken2 as shiboken
-except ImportError:
     import shiboken
-    
-MAYA_VER = int(cmds.about(v=True)[:4])
+
 MAYA_API_VER = int(cmds.about(api=True))
 
 try:
-    MAYA_WIDNOW = shiboken.wrapInstance(long(OpenMayaUI.MQtUtil.mainWindow()), QWidget)
+    # Python 3対応
+    if sys.version_info[0] == 3:
+        MAYA_WIDNOW = shiboken.wrapInstance(int(OpenMayaUI.MQtUtil.mainWindow()), QWidget)
+    else:
+        MAYA_WIDNOW = shiboken.wrapInstance(long(OpenMayaUI.MQtUtil.mainWindow()), QWidget)
 except:
     MAYA_WIDNOW = None
     
 #MayaWindow単独取得関数
 def get_maya_window():
     try:
-        imp.find_module("shiboken2")
-        import shiboken2
-        return shiboken2.wrapInstance(long(OpenMayaUI.MQtUtil.mainWindow()), QWidget)
-
-    except ImportError:
-        try:
-            import shiboken
-            return shiboken.wrapInstance(long(OpenMayaUI.MQtUtil.mainWindow()), QWidget)
-        except:
-            return None
+        # Python 3対応
+        if sys.version_info[0] == 3:
+            return shiboken.wrapInstance(int(OpenMayaUI.MQtUtil.mainWindow()), QWidget)
+        return shiboken.wrapInstance(long(OpenMayaUI.MQtUtil.mainWindow()), QWidget)
+    except:
+        return None
             
 class MainWindow(QMainWindow):
     def __init__(self, parent = MAYA_WIDNOW):
@@ -91,7 +94,8 @@ class LineEdit(QLineEdit):
         key = event.key()
         if key == Qt.Key.Key_Control or key == Qt.Key.Key_Shift:
             return
-        super(self.__class__, self).keyPressEvent(event)
+        else:
+            super(self.__class__, self).keyPressEvent(event)
         
 class EditorDoubleSpinbox(QDoubleSpinBox):
     wheeled = Signal()
@@ -221,7 +225,10 @@ def change_widget_color(widget,
     #ウィジェットのカラー変更
     palette = QPalette()
     palette.setColor(QPalette.Button, bgColor)
-    palette.setColor(QPalette.Background, bgColor)
+    if MAYA_VER >= 2025:
+        palette.setColor(QPalette.Window, bgColor)
+    else:
+        palette.setColor(QPalette.Background, bgColor)
     palette.setColor(QPalette.Base, baseColor)
     palette.setColor(QPalette.Text, textColor)
     
@@ -234,7 +241,7 @@ def change_widget_color(widget,
         if not isinstance(windowText, list):
             windowText = [windowText, windowText, windowText]
         windowTextColor = QColor(*windowText)
-        #print windowText
+        #print(windowText)
         palette.setColor(QPalette.WindowText, windowTextColor)
     # ウィジェットにパレットを設定
     widget.setAutoFillBackground(True)
@@ -402,3 +409,12 @@ def set_header_width(widget, index=None, space=0, min=200):
     else:
         resize_main(index)
         
+#-------------------------------------------------------------
+#Shift,Ctrlなどのモディファイヤが押されてるかどうかを判定する関数            
+def check_key_modifiers(modifire):
+    mods = QApplication.keyboardModifiers()
+    isPressed =  mods & modifire
+    return bool(isPressed)
+    
+    
+    

@@ -2,7 +2,7 @@
 import functools
 import datetime as dt
 import maya.cmds as cmds
-
+from decimal import Decimal, ROUND_HALF_UP
     
 def timer(func):
     """
@@ -14,11 +14,11 @@ def timer(func):
         start = dt.datetime.today()
         result = func(*args, **kwargs)
         end = dt.datetime.today()
-        print '----------------------------------'
-        print 'end:', end
-        print 'start:', start
-        print 'running:', end - start, func
-        print '-------------------------------------------------------------'
+        print('----------------------------------')
+        print('end:', end)
+        print('start:', start)
+        print('running:', end - start, func)
+        print('-------------------------------------------------------------')
         return result
     return wrapper
     
@@ -43,9 +43,9 @@ class LapCounter():
         self.lap_times += 1
         self.start = dt.datetime.today()
     def lap_print(self):
-        print '----------------------------------'
+        print('----------------------------------')
         for lap_time in self.lap_list:
-            print lap_time
+            print(lap_time)
         
 #指定タイプへのコンポーネント変換をまとめて
 def conv_comp(obj, mode=''):
@@ -162,10 +162,10 @@ class TemporaryReparent():
         for child in nodeChildren:
             if cmds.nodeType(child) in self.node_list:
                 if child in self.preSelection:
-                    #print 'parent to dummy'
+                    #print('parent to dummy')
                     cmds.parent(child, self.dummyParent)
                 else:
-                    #print 'parent to srt dummy'
+                    #print('parent to srt dummy')
                     cmds.parent(child, self.srtDummyParent)
 
     def reparentNode(self):
@@ -173,4 +173,17 @@ class TemporaryReparent():
         for child in dummyChildren:
             if cmds.nodeType(child) in self.node_list:
                 cmds.parent(child, self.node)
-                
+
+
+def round_half_up(number, ndigits=0):
+    '''(function)
+    round(number: SupportsRound) -> int
+    round(number: SupportsRound, ndigits: None) -> int
+
+    round(number: SupportsRound[_T@round], ndigits: SupportsIndex) -> _T@round
+    Round a number to a given precision in decimal digits.
+
+    2系のroundを再現し、挙動の差をなくすためのオーバーライド用のround関数
+    '''
+
+    return float(Decimal(str(number)).quantize(Decimal("0.1")**ndigits, rounding=ROUND_HALF_UP))

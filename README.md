@@ -9,6 +9,7 @@ SoftimageにあったWeightEditorをリスペクトして作成したMaya用Skin
 Clone or download > Download ZIP もしくは  
 release > Source code (zip) からZIPファイルをダウンロードしてください。  
 
+### Windows
 解凍したSiWeightEditorフォルダを C:\Program Files\Autodesk\ApplicationPlugins へコピーしてください。  
 ディレクトリ構成などは変更せず解凍フォルダごとそのまま設置します。  
 
@@ -22,6 +23,15 @@ ApplicationPluginsフォルダが存在しない場合は作成してくださ�
 
 動作確認はMaya2015～2018で行っています。  
 
+### Mac
+解凍したSiWeightEditorフォルダを /Users/Shared/Autodesk/ApplicationAddins へコピーしてください。  
+ディレクトリ構成などは変更せず解凍フォルダごとそのまま設置します。  
+
+![image](https://user-images.githubusercontent.com/19793611/148190558-7bac925e-37ce-43c4-b68d-a37d950a4de4.png)
+
+ApplicationAddinsフォルダが存在しない場合は作成してください。  
+
+### 確認
 インストールに成功するとウィンドウ以下に項目が追加されます。  
 
 ![image](https://user-images.githubusercontent.com/28256498/41663300-0ba78a1c-74de-11e8-82b6-fcc5f1435931.png)
@@ -112,6 +122,15 @@ nsrt各ボタン　→　UIのジョイントカラム右クリックすると�
 
 ![siweighteditor7](https://user-images.githubusercontent.com/28256498/41660848-33edc672-74d8-11e8-98f4-463b333cae0f.gif)
 
+### 固定値入力ボタン
+
+よく使う特定の値を決め打ちで入力するボタンを追加しました  
+左クリック → 絶対値入力  
+Shift + 左クリック → 加算  
+Ctrl + 左クリック → 減算  
+
+![weight_static_value](https://user-images.githubusercontent.com/28256498/55289010-736e0e80-53fb-11e9-8596-8591d924d92d.gif)
+
 ### ウェイトロック機能
 
 ![image](https://user-images.githubusercontent.com/28256498/41660533-49fe4320-74d7-11e8-9b4e-308fdc654916.png)
@@ -140,6 +159,34 @@ Lock/Unlockボタン右クリックで選択セルのインフルエンスの全
 Maya標準機能のウェイトハンマーを選択したセル頂点に対して実行します。  
 
 ![siweighteditor11](https://user-images.githubusercontent.com/28256498/41798700-9dc21404-76a9-11e8-9431-b7b69175238e.gif)
+
+### ウェイト値0.0のセルを変更しないウェイトハンマーとスムース
+
+![weight_smooth](https://user-images.githubusercontent.com/28256498/54880859-16b7a480-4e8d-11e9-8ece-db6e44f59fc3.png)
+
+標準機能のスムースをUI上から実行できるようになりました。  
+
+また元のウェイト値が0.0の箇所は値が変わらないカスタムウィトハンマー、ウェイトスムース機能も追加。  
+元から使用しているインフルエンスのみでスムージングしたい場合に。  
+スムースボタン右クリックでスムース設定ウィンドウを開きます。  
+
+![weight_Hammer_Smooth](https://user-images.githubusercontent.com/28256498/54880725-72812e00-4e8b-11e9-8e3a-23e22faad107.gif)
+
+### ウェイトハンマー、スムースの適用率を変える
+
+元の値とスムース後の値の混ぜ率を変更できる機能をつけました  
+数値が小さいほどスムース適用率が低くなります  
+100の場合は通常スムースと同じ挙動  
+
+![weight_smooth_ratio](https://user-images.githubusercontent.com/28256498/55289071-6c93cb80-53fc-11e9-91e4-6561ecb19cbc.gif)
+
+### スムース設定ウィンドウ
+
+スムースボタンの右クリックから専用ボタンに変更しました  
+
+SSボタンで設定ウィンドウを開きます  
+
+![weight_smooth_option2](https://user-images.githubusercontent.com/28256498/55289072-74537000-53fc-11e9-9d64-d6f1c55965e0.gif)
 
 ### Freeze / Freeze_M
 
@@ -206,6 +253,39 @@ SIのGatorライクなウェイト転写機能です。
 複数インフルエンスから複数インフルエンスの移動にも対応しています。  
 
 ![weight3](https://user-images.githubusercontent.com/28256498/45917665-014dc780-beb6-11e8-8b7c-f1342be82107.gif)
+
+### Vertex Weight Copy / Paste
+
+![weight_vtx_cp](https://user-images.githubusercontent.com/28256498/54880877-3e0e7180-4e8d-11e9-8ade-e456ebb1f537.png)
+
+頂点単位でのウェイト移植機能です。  
+
+標準機能と違い、複数の頂点コピー→複数の頂点ペーストに対応しています。  
+ペースト頂点がコピー頂点より多い場合は最初の値に戻って繰り返しペーストされます。  
+ウェイトロック機能とは併用不可です。  
+
+またペースト先にインフルエンスが設定されていない場合は自動追加されます。  
+
+![weight_vtx_copy](https://user-images.githubusercontent.com/28256498/54880762-081cbd80-4e8c-11e9-8930-395ca1e04faf.gif)
+
+### Excel like Cell Copy / Paste
+
+![weight_cell_cp](https://user-images.githubusercontent.com/28256498/54880884-5c746d00-4e8d-11e9-8448-5c5ee79c8b4d.png)
+
+エクセルライクな範囲セルのコピー/ペースト機能です。  
+
+指定範囲をコピーして、インフルエンスの違いにかかわらず範囲ペーストができます。  
+矩形だけでなく飛び地選択でのコピーペーストも可能。  
+ペースト範囲がコピー範囲より大きい場合は繰り返しペーストされます。 
+ウェイトロックとの併用も可能です。   
+
+![weight_cell_copy](https://user-images.githubusercontent.com/28256498/54880791-634eb000-4e8c-11e9-8652-28c6f5d973a0.gif)
+
+こちらの機能は右クリックメニューからも呼び出し可能です。  
+セルの範囲内では ctrl or shift + 右クリックで呼び出しです。(右クリック入力とかぶるため)  
+セルの範囲外は直接右クリックでOK。  
+
+![weight_cell_copy_menu](https://user-images.githubusercontent.com/28256498/54880830-bfb1cf80-4e8c-11e9-8d60-240699a2e092.gif)
 
 ###  Symmetry機能
 
@@ -286,6 +366,12 @@ UI上の選択からスキンに対してインフルエンスの追加削除が
 
 ![weight1](https://user-images.githubusercontent.com/28256498/45583890-04204980-b905-11e8-8719-2dda7bbcafc4.png)
 
+### Remove Unused Influences
+![weight_rem_unuse_inf](https://user-images.githubusercontent.com/28256498/54880904-96457380-4e8d-11e9-96de-4a046d8d4a6d.png)
+
+使用していないインフルエンスの削除。標準機能の呼び出しです。  
+
+![weight_remove_unuse_inf](https://user-images.githubusercontent.com/28256498/54880893-7ada6880-4e8d-11e9-8044-3f4d3204d88b.gif)
 
 ## オプション機能
 
@@ -302,3 +388,13 @@ UI上の選択からスキンに対してインフルエンスの追加削除が
 ![siweighteditor9](https://user-images.githubusercontent.com/28256498/41662504-47b089fc-74dc-11e8-9bd5-aa5294c20491.gif)
 
 
+
+## 「最大インフルエンスの保持」アトリビュートの保持オプション
+
+
+![97ccfc1b80774e31c0b06c305cf0a4df471b9d444243764eb47a14e1d91074ce](https://user-images.githubusercontent.com/49356195/163508929-602aa800-8dc0-48fb-882f-af919d92172a.png)
+
+
+SIWE内のハンマー機能を使用した際、処理対象のSkinClusterの最大インフルエンス数の保持アトリビュートがFalseでも強制的にTrueになってしまうため、ハンマー処理前のフラグの状態を処理後に保持するオプション。
+
+ウェイト調整中は制限をかけず、最後に最大インフルエンス数に丸める派の人向けの機能。

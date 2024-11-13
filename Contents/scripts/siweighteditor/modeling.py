@@ -3,7 +3,6 @@
 from maya import cmds
 from maya import mel
 import os, json
-import pymel.core as pm
 from . import weight
 from . import common
 from . import qt
@@ -47,7 +46,7 @@ def face_extraction(faces=None, deleteOrg=True, selectDuplicated=True, transferW
             # オブジェクト名が一致且つフェイス選択ならリスト入り
             if selObj == objName and '.f[' in sel:
                 compTemp.append(sel)
-        # print 'compTemp ALL : '+str(compTemp)
+        # print('compTemp ALL : '+str(compTemp))
         if len(compTemp) != 0:
             dupObj = cmds.duplicate(selObj, rr=True)
             # 子供のオブジェクト取得関数呼び出し
@@ -64,7 +63,7 @@ def face_extraction(faces=None, deleteOrg=True, selectDuplicated=True, transferW
             cmds.selectMode(co=True)
             cmds.hilite(dupObj)
             cmds.select(delface, r=True)
-            #print 'del face :',delface
+            #print('del face :',delface)
             for obj in dupObj:
                 face_count = str(len(common.conv_comp(obj, mode='face')))
                 cmds.select(obj+'.f[0:'+face_count+']', tgl=True)
@@ -97,10 +96,10 @@ class ClusterCopy():
             cmds.select(vertices, r=True)
             try:
                 weights = cmds.percent(cls, q=True, v=True)
-                print weights
+                print(weights)
             #値が取れないときアンドゥするとなぜか直ることがある
             except Exception as e:
-                print e.message
+                print('{}'.format(e))
                 cmds.delete(cls)
                 cmds.undo()
                 set_node = cmds.ls(cmds.listHistory(cls, f=True), type='objectSet', l=True)[0]
@@ -120,7 +119,7 @@ class ClusterCopy():
             return
         for cls in self.cluster_list:
             weights = self.cls_weight_dict[cls]
-            print 'paste cls :',cls
+            print('paste cls :',cls)
             cmds.select(cl=True)            
             points = self.point_dict[cls]
             newcls = cmds.cluster(points, n=cls)
@@ -131,7 +130,7 @@ class ClusterCopy():
 #ポリゴンメッシュをウェイト付きで複製する関数
 def duplicate_with_skin(nodes, parentNode=None):
     #親子付けがあってもエラーはかないように修正
-    print nodes
+    #print(nodes)
     # リストタイプじゃなかったらリストに変換する
     if not isinstance(nodes, list):
         nodes = [nodes]
@@ -183,7 +182,7 @@ def cehck_zero_poly_object(mesh=None, pop_msg=True):
         cmds.select(zeroPolyObj, r=True)
     return zeroPolyObj
     
-#スキニングを保ったままメッシュマージする関数
+#スキニングを保ったままメッシュマージするクラス
 class MeshMarge():
     def main(self, objects):
         self.objects= objects
@@ -192,7 +191,7 @@ class MeshMarge():
         
     def marge_run(self):
         objects = common.search_polygon_mesh(self.objects, serchChildeNode=True, fullPath=True)
-        #print 'marge target :', objects
+        #print('marge target :', objects)
         if len(objects) < 2:
             self.marged_mesh = objects
             return True
@@ -213,20 +212,19 @@ class MeshMarge():
                 weight.transfer_weight(skined_mesh, no_skin_mesh, transferWeight=False, returnInfluences=False, logTransfer=False)
                 
         if skined_list:
-            marged_mesh = pm.polyUniteSkinned(objects)[0]
-            pm.polyMergeVertex(marged_mesh, d=0.001)
-            target_mesh = pm.duplicate(marged_mesh)[0]
-            weight.transfer_weight(str(marged_mesh), str(target_mesh), transferWeight=True, returnInfluences=False, logTransfer=False)
+            marged_mesh = cmds.polyUniteSkinned(objects)[0]
+            cmds.polyMergeVertex(marged_mesh, d=0.001)
+            target_mesh = cmds.duplicate(marged_mesh)[0]
+            weight.transfer_weight(marged_mesh, target_mesh, transferWeight=True, returnInfluences=False, logTransfer=False)
         else:
-            marged_mesh = pm.polyUnite(objects, o=True)[0]
-            pm.polyMergeVertex(marged_mesh, d=0.001)
-            target_mesh = pm.duplicate(marged_mesh)[0]
-            #pm.delete(objects)
+            marged_mesh = cmds.polyUnite(objects, o=True)[0]
+            cmds.polyMergeVertex(marged_mesh, d=0.001)
+            target_mesh = cmds.duplicate(marged_mesh)[0]
         for obj in objects:
-            if pm.ls(obj):
-                pm.delete(obj)
+            if cmds.ls(obj):
+                cmds.delete(obj)
             
-        pm.delete(marged_mesh)
+        cmds.delete(marged_mesh)
         
         all_attr_list = [['.sx', '.sy', '.sz'], ['.rx', '.ry', '.rz'], ['.tx', '.ty', '.tz']]
         for p_node in parent_list:
@@ -235,18 +233,19 @@ class MeshMarge():
                 for attr_list in all_attr_list:
                     lock_list = []
                     for attr in attr_list:
-                        lock_list.append(pm.getAttr(target_mesh+attr, lock=True))
-                        pm.setAttr(target_mesh+attr, lock=False)
+                        lock_list.append(cmds.getAttr(target_mesh+attr, lock=True))
+                        cmds.setAttr(target_mesh+attr, lock=False)
                     all_lock_list.append(lock_list)
-                pm.parent(target_mesh, p_node[0])
+                cmds.parent(target_mesh, p_node[0])
                 for lock_list, attr_list in zip(all_lock_list, all_attr_list):
                     for lock, attr in zip(lock_list, attr_list):
-                        continue
-                        pm.setAttr(target_mesh[0]+attr, lock=lock)
+                        #continue
+                        #print('lock attr :', lock, target_mesh, attr)
+                        cmds.setAttr(target_mesh+attr, lock=lock)
                 break
-        pm.rename(target_mesh, objects[0])
-        pm.select(target_mesh)
-        self.marged_mesh = str(target_mesh)
+        target_mesh = cmds.rename(target_mesh, objects[0])
+        cmds.select(target_mesh)
+        self.marged_mesh = target_mesh
         return True
     
     

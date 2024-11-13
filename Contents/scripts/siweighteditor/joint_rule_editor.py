@@ -5,12 +5,18 @@ import os
 import json
 import imp
 from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
-try:
-    imp.find_module('PySide2')
+
+from .maya_version import MAYA_VER
+
+if MAYA_VER >= 2025:
+    from PySide6.QtWidgets import *
+    from PySide6.QtGui import *
+    from PySide6.QtCore import *
+elif 2017 <= MAYA_VER < 2025:
     from PySide2.QtWidgets import *
     from PySide2.QtGui import *
     from PySide2.QtCore import *
-except ImportError:
+else:
     from PySide.QtGui import *
     from PySide.QtCore import *
     
@@ -22,7 +28,7 @@ class Option():
             WINDOW.closeEvent(None)
             WINDOW.close()
         except Exception as e:
-            print e.message
+            print(e)
         WINDOW = SubWindow()
         #WINDOW.init_flag=False
         WINDOW.resize(800, 500)
@@ -134,7 +140,7 @@ class SubWindow(qt.SubWindow):
         table.setRowCount(100)
         for i, lr_list in enumerate(data_list):
             for j, lr in enumerate(lr_list):
-                #print 'set rule :', lr
+                #print('set rule :', lr)
                 item = QTableWidgetItem(lr)
                 table.setItem(j, i, item)
                 
@@ -166,7 +172,7 @@ class SubWindow(qt.SubWindow):
                         r_list = save_data.values()
                         self.all_lr_list.append([l_list, r_list])
                 except Exception as e:
-                    print e.message
+                    print('{}'.format(e))
                     self.all_lr_list.append(self.def_all_lr_list[i])
             else:
                 self.all_lr_list.append(self.def_all_lr_list[i])
@@ -183,7 +189,7 @@ class SubWindow(qt.SubWindow):
                 if left_data and right_data:
                     if not left_data.text() or not right_data.text():
                         continue
-                    #print 'save data :', left_data.text(), right_data.text()
+                    #print('save data :', left_data.text(), right_data.text())
                     save_data[left_data.text()] = right_data.text()
                     
             with open(save_file, 'w') as f:
